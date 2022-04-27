@@ -1,1 +1,10 @@
+.DS_Store
 node_modules
+
+
+# local env files
+yarn.*
+
+# Editor directories and files
+.idea
+.vscode

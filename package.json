@@ -1,7 +1,7 @@
 {
   "name": "leaflet-contrast",
   "version": "1.0.0",
-  "description": "Compare the two layers",
+  "description": "Implementation contrast the two layers",
   "main": "index.js",
   "browserify": {
     "transform": [
