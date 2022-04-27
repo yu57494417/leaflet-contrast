@@ -3,7 +3,7 @@ node_modules
 
 
 # local env files
-yarn.*
+yarn.lock
 
 # Editor directories and files
 .idea
