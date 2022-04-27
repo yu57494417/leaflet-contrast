@@ -1,0 +1,49 @@
+{
+  "name": "leaflet-contrast",
+  "version": "1.0.0",
+  "description": "Compare the two layers",
+  "main": "index.js",
+  "browserify": {
+    "transform": [
+      "css-img-datauri-stream",
+      "cssify",
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "leaflet": "global:L"
+  },
+  "scripts": {
+    "build": "browserify index.js > leaflet-contrast.js",
+    "postbuild": "uglifyjs leaflet-contrast.js -cm -o leaflet-contrast.min.js",
+    "preversion": "npm test && npm run build",
+    "lint": "standard index.js",
+    "start": "budo index.js:leaflet-contrast.js --live",
+    "test": "npm run lint"
+  },
+  "keywords": [
+    "leaflet"
+  ],
+  "author": "Gregor MacLennan / yu57494417 <970440402@qq.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^16.2.2",
+    "budo": "^11.2.0",
+    "standard": "^11.0.1",
+    "uglify-js": "^3.3.24"
+  },
+  "dependencies": {
+    "browserify-shim": "^3.8.14",
+    "css-img-datauri-stream": "^0.1.5",
+    "cssify": "^1.0.3",
+    "leaflet": ">=0.7.7 <2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digidem/leaflet-side-by-side.git"
+  },
+  "bugs": {
+    "url": "https://github.com/digidem/leaflet-side-by-side/issues"
+  },
+  "homepage": "https://github.com/digidem/leaflet-side-by-side#readme"
+}
