@@ -1,4 +1,4 @@
-# leaflet-side-by-side
+# leaflet-contrast
 
 A Leaflet control to add a split screen to compare two map overlays.
 
@@ -41,13 +41,13 @@ Subscribe to events using [these methods](http://leafletjs.com/reference.html#ev
 Add the script to the top of your page (css is included in the javascript):
 
 ```html
-<script src="leaflet-side-by-side.js"></script>
+<script src="leaflet-contrast.js"></script>
 ```
 
 Or if you are using browserify:
 
 ```js
-var sideBySide = require('leaflet-side-by-side')
+var sideBySide = require('leaflet-contrast')
 ```
 
 Then create a map, add two layers to it, and create the SideBySide control and add it to the map:
@@ -64,7 +64,7 @@ L.control.sideBySide(myLayer1, myLayer2).addTo(map);
 
 ### Example
 
-[Live Example](http://lab.digital-democracy.org/leaflet-side-by-side/) see [source](index.html)
+
 
 ### Limitations
 
