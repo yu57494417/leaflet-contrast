@@ -40,10 +40,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/digidem/leaflet-side-by-side.git"
+    "url": "https://github.com/yu57494417/leaflet-contrast"
   },
   "bugs": {
-    "url": "https://github.com/digidem/leaflet-side-by-side/issues"
+    "url": "https://github.com/yu57494417/leaflet-contrast/issues"
   },
-  "homepage": "https://github.com/digidem/leaflet-side-by-side#readme"
+  "homepage": "https://github.com/yu57494417/leaflet-contrast#readme"
 }
