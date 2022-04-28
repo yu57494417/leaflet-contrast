@@ -14,7 +14,7 @@
     "leaflet": "global:L"
   },
   "scripts": {
-    "build": "browserify index.js > leaflet-contrast.js",
+    "build": "browserify lib/index.js > leaflet-contrast.js",
     "postbuild": "uglifyjs leaflet-contrast.js -cm -o leaflet-contrast.min.js",
     "preversion": "npm test && npm run build",
     "lint": "standard index.js",

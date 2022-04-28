@@ -1,38 +1,41 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (global){(function (){
 var L = (typeof window !== "undefined" ? window['L'] : typeof global !== "undefined" ? global['L'] : null)
-require('./layout.css')
-require('./range.css')
+require("./layout.css")
+require("./range.css")
 
 var mapWasDragEnabled
 var mapWasTapEnabled
 
 // Leaflet v0.7 backwards compatibility
-function on (el, types, fn, context) {
-  types.split(' ').forEach(function (type) {
+function on(el, types, fn, context) {
+  types.split(" ").forEach(function (type) {
     L.DomEvent.on(el, type, fn, context)
   })
 }
 
 // Leaflet v0.7 backwards compatibility
-function off (el, types, fn, context) {
-  types.split(' ').forEach(function (type) {
+function off(el, types, fn, context) {
+  types.split(" ").forEach(function (type) {
     L.DomEvent.off(el, type, fn, context)
   })
 }
 
-function getRangeEvent (rangeInput) {
-  return 'oninput' in rangeInput ? 'input' : 'change'
+function getRangeEvent(rangeInput) {
+  return "oninput" in rangeInput ? "input" : "change"
 }
 
-function cancelMapDrag () {
+function cancelMapDrag() {
+  console.log('sad')
   mapWasDragEnabled = this._map.dragging.enabled()
+  console.log(mapWasDragEnabled)
   mapWasTapEnabled = this._map.tap && this._map.tap.enabled()
+  console.log(mapWasTapEnabled)
   this._map.dragging.disable()
   this._map.tap && this._map.tap.disable()
 }
 
-function uncancelMapDrag (e) {
+function uncancelMapDrag(e) {
   this._refocusOnMap(e)
   if (mapWasDragEnabled) {
     this._map.dragging.enable()
@@ -43,16 +46,18 @@ function uncancelMapDrag (e) {
 }
 
 // convert arg to an array - returns empty array if arg is undefined
-function asArray (arg) {
-  return (arg === 'undefined') ? [] : Array.isArray(arg) ? arg : [arg]
+function asArray(arg) {
+  return arg === "undefined" ? [] : Array.isArray(arg) ? arg : [arg]
 }
 
-function noop () {}
+function noop() {
+  return
+}
 
 L.Control.SideBySide = L.Control.extend({
   options: {
     thumbSize: 42,
-    padding: 0
+    padding: 0,
   },
 
   initialize: function (leftLayers, rightLayers, options) {
@@ -69,22 +74,21 @@ L.Control.SideBySide = L.Control.extend({
 
   setPosition: noop,
 
-  includes: L.Evented.prototype || L.Mixin.Events,
+  includes: L.Mixin.Events,
 
   addTo: function (map) {
     this.remove()
     this._map = map
+    var container = (this._container = L.DomUtil.create("div", "leaflet-sbs", map._controlContainer))
 
-    var container = this._container = L.DomUtil.create('div', 'leaflet-sbs', map._controlContainer)
-
-    this._divider = L.DomUtil.create('div', 'leaflet-sbs-divider', container)
-    var range = this._range = L.DomUtil.create('input', 'leaflet-sbs-range', container)
-    range.type = 'range'
+    this._divider = L.DomUtil.create("div", "leaflet-sbs-divider", container)
+    var range = (this._range = L.DomUtil.create("input", "leaflet-sbs-range", container))
+    range.type = "range"
     range.min = 0
     range.max = 1
-    range.step = 'any'
+    range.step = "any"
     range.value = 0.5
-    range.style.paddingLeft = range.style.paddingRight = this.options.padding + 'px'
+    range.style.paddingLeft = range.style.paddingRight = this.options.padding + "px"
     this._addEvents()
     this._updateLayers()
     return this
@@ -95,10 +99,10 @@ L.Control.SideBySide = L.Control.extend({
       return this
     }
     if (this._leftLayer) {
-      this._leftLayer.getContainer().style.clip = ''
+      this._leftLayer.getContainer().style.clip = ""
     }
     if (this._rightLayer) {
-      this._rightLayer.getContainer().style.clip = ''
+      this._rightLayer.getContainer().style.clip = ""
     }
     this._removeEvents()
     L.DomUtil.remove(this._container)
@@ -127,18 +131,25 @@ L.Control.SideBySide = L.Control.extend({
     var clipX = nw.x + this.getPosition()
     var dividerX = this.getPosition()
 
-    this._divider.style.left = dividerX + 'px'
-    this.fire('dividermove', {x: dividerX})
-    var clipLeft = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)'
-    var clipRight = 'rect(' + [nw.y, se.x, se.y, clipX].join('px,') + 'px)'
-    if (this._leftLayer) {
-      this._leftLayer.getContainer().style.clip = clipLeft
-    }
-    if (this._rightLayer) {
-      this._rightLayer.getContainer().style.clip = clipRight
-    }
+    this._divider.style.left = dividerX + "px"
+    this.fire("dividermove", { x: dividerX })
+    var clipLeft = "rect(" + [nw.y, clipX, se.y, nw.x].join("px,") + "px)"
+    var clipRight = "rect(" + [nw.y, se.x, se.y, clipX].join("px,") + "px)"
+    this._leftLayers.forEach(function (layer) {
+      if (this._map.hasLayer(layer)) {
+        if (layer) {
+          layer.getContainer().style.clip = clipLeft
+        }
+      }
+    }, this)
+    this._rightLayers.forEach(function (layer) {
+      if (this._map.hasLayer(layer)) {
+        if (layer) {
+          layer.getContainer().style.clip = clipRight
+        }
+      }
+    }, this)
   },
-
   _updateLayers: function () {
     if (!this._map) {
       return this
@@ -156,13 +167,13 @@ L.Control.SideBySide = L.Control.extend({
         this._rightLayer = layer
       }
     }, this)
-    if (prevLeft !== this._leftLayer) {
-      prevLeft && this.fire('leftlayerremove', {layer: prevLeft})
-      this._leftLayer && this.fire('leftlayeradd', {layer: this._leftLayer})
-    }
     if (prevRight !== this._rightLayer) {
-      prevRight && this.fire('rightlayerremove', {layer: prevRight})
-      this._rightLayer && this.fire('rightlayeradd', {layer: this._rightLayer})
+      prevRight && this.fire("rightlayerremove", { layer: prevRight })
+      this._rightLayer && this.fire("rightlayeradd", { layer: this._rightLayer })
+    }
+    if (prevLeft !== this._leftLayer) {
+      prevLeft && this.fire("leftlayerremove", { layer: prevLeft })
+      this._leftLayer && this.fire("leftlayeradd", { layer: this._leftLayer })
     }
     this._updateClip()
   },
@@ -171,11 +182,11 @@ L.Control.SideBySide = L.Control.extend({
     var range = this._range
     var map = this._map
     if (!map || !range) return
-    map.on('move', this._updateClip, this)
-    map.on('layeradd layerremove', this._updateLayers, this)
+    map.on("move", this._updateClip, this)
+    map.on("layeradd layerremove", this._updateLayers, this)
     on(range, getRangeEvent(range), this._updateClip, this)
-    on(range, L.Browser.touch ? 'touchstart' : 'mousedown', cancelMapDrag, this)
-    on(range, L.Browser.touch ? 'touchend' : 'mouseup', uncancelMapDrag, this)
+    on(range, L.Browser.mobile ? "touchstart" : "mousedown", cancelMapDrag, this)
+    on(range, L.Browser.mobile ? "touchend" : "mouseup", uncancelMapDrag, this)
   },
 
   _removeEvents: function () {
@@ -183,14 +194,14 @@ L.Control.SideBySide = L.Control.extend({
     var map = this._map
     if (range) {
       off(range, getRangeEvent(range), this._updateClip, this)
-      off(range, L.Browser.touch ? 'touchstart' : 'mousedown', cancelMapDrag, this)
-      off(range, L.Browser.touch ? 'touchend' : 'mouseup', uncancelMapDrag, this)
+      off(range, L.Browser.mobile ? "touchstart" : "mousedown", cancelMapDrag, this)
+      off(range, L.Browser.mobile ? "touchend" : "mouseup", uncancelMapDrag, this)
     }
     if (map) {
-      map.off('layeradd layerremove', this._updateLayers, this)
-      map.off('move', this._updateClip, this)
+      map.off("layeradd layerremove", this._updateLayers, this)
+      map.off("move", this._updateClip, this)
     }
-  }
+  },
 })
 
 L.control.sideBySide = function (leftLayers, rightLayers, options) {
@@ -200,13 +211,19 @@ L.control.sideBySide = function (leftLayers, rightLayers, options) {
 module.exports = L.Control.SideBySide
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./layout.css":2,"./range.css":4}],2:[function(require,module,exports){
-var inject = require('./node_modules/cssify');
+},{"./layout.css":2,"./range.css":3}],2:[function(require,module,exports){
+var inject = require('./../node_modules/cssify');
 var css = ".leaflet-sbs-range {\n    position: absolute;\n    top: 50%;\n    width: 100%;\n    z-index: 999;\n}\n.leaflet-sbs-divider {\n    position: absolute;\n    top: 0;\n    bottom: 0;\n    left: 50%;\n    margin-left: -2px;\n    width: 4px;\n    background-color: #fff;\n    pointer-events: none;\n    z-index: 999;\n}\n";
-inject(css, undefined, '_rvew7r');
+inject(css, undefined, '_1e1uotb');
 module.exports = css;
 
-},{"./node_modules/cssify":3}],3:[function(require,module,exports){
+},{"./../node_modules/cssify":4}],3:[function(require,module,exports){
+var inject = require('./../node_modules/cssify');
+var css = ".leaflet-sbs-range {\n    -webkit-appearance: none;\n    display: inline-block!important;\n    vertical-align: middle;\n    height: 0;\n    padding: 0;\n    margin: 0;\n    border: 0;\n    background: rgba(0, 0, 0, 0.25);\n    min-width: 100px;\n    cursor: pointer;\n    pointer-events: none;\n    z-index: 999;\n}\n.leaflet-sbs-range::-ms-fill-upper {\n    background: transparent;\n}\n.leaflet-sbs-range::-ms-fill-lower {\n    background: rgba(255, 255, 255, 0.25);\n}\n/* Browser thingies */\n\n.leaflet-sbs-range::-moz-range-track {\n    opacity: 0;\n}\n.leaflet-sbs-range::-ms-track {\n    opacity: 0;\n}\n.leaflet-sbs-range::-ms-tooltip {\n    display: none;\n}\n/* For whatever reason, these need to be defined\n * on their own so dont group them */\n\n.leaflet-sbs-range::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    margin: 0;\n    padding: 0;\n    background: #fff;\n    height: 40px;\n    width: 40px;\n    border-radius: 20px;\n    cursor: ew-resize;\n    pointer-events: auto;\n    border: 1px solid #ddd;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABlBMVEV9fX3///+Kct39AAAAAnRSTlP/AOW3MEoAAAA9SURBVFjD7dehDQAwDANBZ/+l2wmKoiqR7pHRcaeaCxAIBAL/g7k9JxAIBAKBQCAQCAQC14H+MhAIBE4CD3fOFvGVBzhZAAAAAElFTkSuQmCC\");\n    background-position: 50% 50%;\n    background-repeat: no-repeat;\n    background-size: 40px 40px;\n}\n.leaflet-sbs-range::-ms-thumb {\n    margin: 0;\n    padding: 0;\n    background: #fff;\n    height: 40px;\n    width: 40px;\n    border-radius: 20px;\n    cursor: ew-resize;\n    pointer-events: auto;\n    border: 1px solid #ddd;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABlBMVEV9fX3///+Kct39AAAAAnRSTlP/AOW3MEoAAAA9SURBVFjD7dehDQAwDANBZ/+l2wmKoiqR7pHRcaeaCxAIBAL/g7k9JxAIBAKBQCAQCAQC14H+MhAIBE4CD3fOFvGVBzhZAAAAAElFTkSuQmCC\");\n    background-position: 50% 50%;\n    background-repeat: no-repeat;\n    background-size: 40px 40px;\n}\n.leaflet-sbs-range::-moz-range-thumb {\n    padding: 0;\n    right: 0    ;\n    background: #fff;\n    height: 40px;\n    width: 40px;\n    border-radius: 20px;\n    cursor: ew-resize;\n    pointer-events: auto;\n    border: 1px solid #ddd;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABlBMVEV9fX3///+Kct39AAAAAnRSTlP/AOW3MEoAAAA9SURBVFjD7dehDQAwDANBZ/+l2wmKoiqR7pHRcaeaCxAIBAL/g7k9JxAIBAKBQCAQCAQC14H+MhAIBE4CD3fOFvGVBzhZAAAAAElFTkSuQmCC\");\n    background-position: 50% 50%;\n    background-repeat: no-repeat;\n    background-size: 40px 40px;\n}\n.leaflet-sbs-range:disabled::-moz-range-thumb {\n    cursor: default;\n}\n.leaflet-sbs-range:disabled::-ms-thumb {\n    cursor: default;\n}\n.leaflet-sbs-range:disabled::-webkit-slider-thumb {\n    cursor: default;\n}\n.leaflet-sbs-range:disabled {\n    cursor: default;\n}\n.leaflet-sbs-range:focus {\n    outline: none!important;\n}\n.leaflet-sbs-range::-moz-focus-outer {\n    border: 0;\n}\n\n";
+inject(css, undefined, '_yat7ju');
+module.exports = css;
+
+},{"./../node_modules/cssify":4}],4:[function(require,module,exports){
 'use strict'
 
 function injectStyleTag (document, fileName, cb) {
@@ -261,10 +278,4 @@ module.exports.byUrl = function (url) {
   }
 }
 
-},{}],4:[function(require,module,exports){
-var inject = require('./node_modules/cssify');
-var css = ".leaflet-sbs-range {\n    -webkit-appearance: none;\n    display: inline-block!important;\n    vertical-align: middle;\n    height: 0;\n    padding: 0;\n    margin: 0;\n    border: 0;\n    background: rgba(0, 0, 0, 0.25);\n    min-width: 100px;\n    cursor: pointer;\n    pointer-events: none;\n    z-index: 999;\n}\n.leaflet-sbs-range::-ms-fill-upper {\n    background: transparent;\n}\n.leaflet-sbs-range::-ms-fill-lower {\n    background: rgba(255, 255, 255, 0.25);\n}\n/* Browser thingies */\n\n.leaflet-sbs-range::-moz-range-track {\n    opacity: 0;\n}\n.leaflet-sbs-range::-ms-track {\n    opacity: 0;\n}\n.leaflet-sbs-range::-ms-tooltip {\n    display: none;\n}\n/* For whatever reason, these need to be defined\n * on their own so dont group them */\n\n.leaflet-sbs-range::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    margin: 0;\n    padding: 0;\n    background: #fff;\n    height: 40px;\n    width: 40px;\n    border-radius: 20px;\n    cursor: ew-resize;\n    pointer-events: auto;\n    border: 1px solid #ddd;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABlBMVEV9fX3///+Kct39AAAAAnRSTlP/AOW3MEoAAAA9SURBVFjD7dehDQAwDANBZ/+l2wmKoiqR7pHRcaeaCxAIBAL/g7k9JxAIBAKBQCAQCAQC14H+MhAIBE4CD3fOFvGVBzhZAAAAAElFTkSuQmCC\");\n    background-position: 50% 50%;\n    background-repeat: no-repeat;\n    background-size: 40px 40px;\n}\n.leaflet-sbs-range::-ms-thumb {\n    margin: 0;\n    padding: 0;\n    background: #fff;\n    height: 40px;\n    width: 40px;\n    border-radius: 20px;\n    cursor: ew-resize;\n    pointer-events: auto;\n    border: 1px solid #ddd;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABlBMVEV9fX3///+Kct39AAAAAnRSTlP/AOW3MEoAAAA9SURBVFjD7dehDQAwDANBZ/+l2wmKoiqR7pHRcaeaCxAIBAL/g7k9JxAIBAKBQCAQCAQC14H+MhAIBE4CD3fOFvGVBzhZAAAAAElFTkSuQmCC\");\n    background-position: 50% 50%;\n    background-repeat: no-repeat;\n    background-size: 40px 40px;\n}\n.leaflet-sbs-range::-moz-range-thumb {\n    padding: 0;\n    right: 0    ;\n    background: #fff;\n    height: 40px;\n    width: 40px;\n    border-radius: 20px;\n    cursor: ew-resize;\n    pointer-events: auto;\n    border: 1px solid #ddd;\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABlBMVEV9fX3///+Kct39AAAAAnRSTlP/AOW3MEoAAAA9SURBVFjD7dehDQAwDANBZ/+l2wmKoiqR7pHRcaeaCxAIBAL/g7k9JxAIBAKBQCAQCAQC14H+MhAIBE4CD3fOFvGVBzhZAAAAAElFTkSuQmCC\");\n    background-position: 50% 50%;\n    background-repeat: no-repeat;\n    background-size: 40px 40px;\n}\n.leaflet-sbs-range:disabled::-moz-range-thumb {\n    cursor: default;\n}\n.leaflet-sbs-range:disabled::-ms-thumb {\n    cursor: default;\n}\n.leaflet-sbs-range:disabled::-webkit-slider-thumb {\n    cursor: default;\n}\n.leaflet-sbs-range:disabled {\n    cursor: default;\n}\n.leaflet-sbs-range:focus {\n    outline: none!important;\n}\n.leaflet-sbs-range::-moz-focus-outer {\n    border: 0;\n}\n\n";
-inject(css, undefined, '_cla92q');
-module.exports = css;
-
-},{"./node_modules/cssify":3}]},{},[1]);
+},{}]},{},[1]);
